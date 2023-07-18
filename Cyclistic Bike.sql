@@ -95,11 +95,12 @@ FROM [Capstone Project ].[dbo].[202210-divvy-tripdata];
 SELECT TOP 15 *
 FROM Cyclistic_Project;
 
-/* Total no of rides by rideable type */
-SELECT rideable_type,
-COUNT(ride_id) AS no0fuser_type
+/* No of rides */
+SELECT rideable_type, 
+COUNT(ride_id) AS no_of_user_types
 FROM Cyclistic_Project
-GROUP BY rideable_type;        /* Electric_bike (2,858,450), Classic_bike (2,635,781), Docked_bike (181,586)*/
+GROUP BY rideable_type
+ORDER BY no_of_user_types DESC;        /* Electric_bike (2,858,450), Classic_bike (2,635,781), Docked_bike (181,586)*/
 
 /* Most patronized bike types by user type */
 SELECT rideable_type AS bike_type,
@@ -119,10 +120,10 @@ GROUP BY member_casual;        /* Average - Members (521.55), Casuals (680.21) *
 /* Most active days for each user type */
 SELECT member_casual AS user_type,
 weekday_started AS day_of_week,
-COUNT(weekday_started) AS no0frides_perday
+COUNT(weekday_started) AS no_of_rides_perday
 FROM Cyclistic_Project
 GROUP BY member_casual, weekday_started
-ORDER BY weekday_started DESC; /* Members (7), Casuals (7) */
+ORDER BY no_of_rides_perday DESC; /* Members (5), Casuals (7) */
 
 /* Max ride length for each user type */
 SELECT member_casual AS user_type,
@@ -132,45 +133,37 @@ GROUP BY member_casual;        /* Members (69,947), Casuals (84,509) */
 
 /* How many rides got started and ended immeidately? */
 SELECT member_casual AS user_type, 
-COUNT(ride_id) AS no_rides_unused
+COUNT(ride_id) AS no_of_unused_rides
 FROM (SELECT *
 FROM Cyclistic_Project
 WHERE (started_time = ended_time) AND (start_station_name IS NOT NULL) and (end_station_name IS NOT NULL)) AS rides
 GROUP BY member_casual
-ORDER BY no_rides_unused DESC;  /* Members (4,373), Casuals (908) */
+ORDER BY no_of_unused_rides DESC;  /* Members (4,373), Casuals (908) */
 
 /* Top 10 stations with the most immediate cancellations */
 SELECT TOP 10 start_station_name AS station_name,
-COUNT(ride_id) AS no_rides_unused
+COUNT(ride_id) AS no_of_unused_rides
 FROM (SELECT *
 FROM [Cyclistic_Project]
-WHERE (started_time = ended_time) AND (start_station_name IS NOT NULL) and (end_station_name IS NOT NULL)) AS rides
+WHERE (started_time = ended_time) AND (start_station_name IS NOT NULL) AND (end_station_name IS NOT NULL)) AS rides
 GROUP BY start_station_name
-ORDER BY no_rides_unused DESC;   
+ORDER BY no_of_unused_rides DESC;   
 
-/* Stations & how many trips were started, grouped by user_type */
+/* Stations favored most for start & end of trips for both user types */
 SELECT start_station_name, 
 member_casual AS user_type,
 COUNT (ride_id) AS no_of_rides_per_station
 FROM Cyclistic_Project
 WHERE start_station_name IS NOT NULL
 GROUP BY start_station_name, member_casual
-ORDER BY start_station_name;     
-
-/* Stations & how many trips were ended */
+ORDER BY no_of_rides_per_station DESC;     
 SELECT end_station_name,
 member_casual AS user_type,
 COUNT (ride_id) AS no_of_rides_per_station
 FROM Cyclistic_Project
 WHERE end_station_name IS NOT NULL
 GROUP BY end_station_name, member_casual
-ORDER BY end_station_name;        
-
-/* Max times for the different usertypes? */
-SELECT MAX (ride_length_secs) AS max_time,
-member_casual
-FROM Cyclistic_Project
-GROUP BY member_casual;           /* Members (69,947), Casuals (84,509)*/
+ORDER BY no_of_rides_per_station DESC;        
 
 /* Trips by time of day */
 SELECT started_time, 
